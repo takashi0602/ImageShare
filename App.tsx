@@ -13,11 +13,16 @@ import * as ImagePicker from "expo-image-picker";
 import * as Sharing from "expo-sharing";
 import uploadToAnonymousFilesAsync from "anonymous-files";
 import { SelectedImage } from "./interfaces";
+import { usePrefectures } from "./hooks/usePrefectures";
 
 export default function App() {
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
     null
   );
+
+  const { prefectures, isLoading, isError } = usePrefectures();
+
+  console.log(prefectures);
 
   const openImagePickerAsync = async () => {
     const permissionResult =
@@ -70,21 +75,40 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
-        style={styles.logo}
-      />
-      {/* <Image source={logo} style={{ width: 305, height: 159 }} /> */}
-      <Text style={styles.instructions}>
-        To share a photo from your phone with a friend, just press the button
-        below!
-      </Text>
-      <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
-        <Text style={styles.buttonText}>Pick a photo</Text>
-      </TouchableOpacity>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      {isLoading ? (
+        <Text style={styles.instructions}>Loading...</Text>
+      ) : (
+        <View style={styles.container}>
+          <Image
+            source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
+            style={styles.logo}
+          />
+          {/* <Image source={logo} style={{ width: 305, height: 159 }} /> */}
+          {prefectures &&
+            prefectures.map(
+              (prefectures: { prefCode: number; prefName: string }) => {
+                return (
+                  <Text key={prefectures.prefCode} style={styles.instructions}>
+                    {prefectures.prefName}
+                  </Text>
+                );
+              }
+            )}
+          <Text style={styles.instructions}>
+            To share a photo from your phone with a friend, just press the
+            button below!
+          </Text>
+          <TouchableOpacity
+            onPress={openImagePickerAsync}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Pick a photo</Text>
+          </TouchableOpacity>
+          <StatusBar style="auto" />
+        </View>
+      )}
+    </>
   );
 }
 
