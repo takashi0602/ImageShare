@@ -7,6 +7,9 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  FlatList,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
 // import logo from "./assets/logo.png";
 import * as ImagePicker from "expo-image-picker";
@@ -14,6 +17,11 @@ import * as Sharing from "expo-sharing";
 import uploadToAnonymousFilesAsync from "anonymous-files";
 import { SelectedImage } from "./interfaces";
 import { usePrefectures } from "./hooks/usePrefectures";
+
+interface Prefectures {
+  prefCode: number;
+  prefName: string;
+}
 
 export default function App() {
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
@@ -74,41 +82,48 @@ export default function App() {
     );
   }
 
+  const renderItem = ({ item }: { item: Prefectures }) => {
+    return (
+      <View style={styles.container}>
+        <Text key={item.prefCode} style={styles.instructions}>
+          {item.prefName}
+        </Text>
+      </View>
+    );
+  };
+
   return (
-    <>
+    <SafeAreaView style={styles.container}>
       {isLoading ? (
         <Text style={styles.instructions}>Loading...</Text>
       ) : (
-        <View style={styles.container}>
-          <Image
-            source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
-            style={styles.logo}
+        <>
+          <ScrollView>
+            <Text style={styles.instructions}>
+              To share a photo from your phone with a friend, just press the
+              button below!
+            </Text>
+            <TouchableOpacity
+              onPress={openImagePickerAsync}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Pick a photo</Text>
+            </TouchableOpacity>
+            <Image
+              source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
+              style={styles.logo}
+            />
+            {/* <Image source={logo} style={{ width: 305, height: 159 }} /> */}
+            <StatusBar style="auto" />
+          </ScrollView>
+          <FlatList
+            data={prefectures}
+            renderItem={renderItem}
+            keyExtractor={(item) => `${item.prefCode}`}
           />
-          {/* <Image source={logo} style={{ width: 305, height: 159 }} /> */}
-          {prefectures &&
-            prefectures.map(
-              (prefectures: { prefCode: number; prefName: string }) => {
-                return (
-                  <Text key={prefectures.prefCode} style={styles.instructions}>
-                    {prefectures.prefName}
-                  </Text>
-                );
-              }
-            )}
-          <Text style={styles.instructions}>
-            To share a photo from your phone with a friend, just press the
-            button below!
-          </Text>
-          <TouchableOpacity
-            onPress={openImagePickerAsync}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Pick a photo</Text>
-          </TouchableOpacity>
-          <StatusBar style="auto" />
-        </View>
+        </>
       )}
-    </>
+    </SafeAreaView>
   );
 }
 
@@ -116,7 +131,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
     justifyContent: "center",
   },
   logo: {
