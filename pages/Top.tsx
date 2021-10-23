@@ -26,16 +26,25 @@ interface Prefectures {
   prefName: string;
 }
 
+interface Props {
+  navigation: {
+    navigate: (to: string) => void;
+  };
+  route: {
+    key: string;
+  };
+}
+
 const Stack = createNativeStackNavigator();
 
-const Top = (props) => {
+const Top = (props: Props) => {
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
     null
   );
 
-  const { prefectures, isLoading, isError } = usePrefectures();
+  console.log(props);
 
-  console.log(prefectures);
+  const { prefectures, isLoading, isError } = usePrefectures();
 
   const openImagePickerAsync = async () => {
     const permissionResult =
